@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Raw WebSocket Chat</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+    #chat {
+      border: 1px solid #ccc;
+      height: 250px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+    #meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 14px;
+    }
+    input, button {
+      width: 100%;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>🐈🐈🐈 Soupa chat 🐈🐈🐈</h3>
+
+<div id="meta">
+  <div>Users connected: <strong id="userCount">0</strong></div>
+  <div>Status: <span id="status">disconnected</span></div>
+</div>
+
+<div id="chat"></div>
+
+<input id="msg" placeholder="Type a message..." />
+<button onclick="send()">Send</button>
+
+<script>
+  const chat = document.getElementById("chat");
+  const userCount = document.getElementById("userCount");
+  const status = document.getElementById("status");
+
+  // Par consigne : destination localhost (navigateur sur le PC)
+  // Permet aussi de changer le port via ?wsPort=XXXX
+  const wsPort = new URLSearchParams(location.search).get("wsPort") || "8080";
+  const socket = new WebSocket(`ws://localhost:${wsPort}`);
+
+  socket.onopen = () => {
+    console.log("[frontend] Connected");
+    status.textContent = "connected";
+  };
+
+  socket.onmessage = (event) => {
+    console.log("[frontend] Message received:", event.data);
+
+    let payload;
+    try {
+      payload = JSON.parse(event.data);
+    } catch {
+      payload = { type: "message", value: event.data };
+    }
+
+    if (payload && payload.type === "user_count") {
+      userCount.textContent = String(payload.value);
+      return;
+    }
+
+    if (payload && payload.type === "message") {
+      const line = document.createElement("div");
+      line.textContent = payload.value;
+      chat.appendChild(line);
+      chat.scrollTop = chat.scrollHeight;
+      return;
+    }
+
+    // Fallback : on affiche ce qu'on reçoit
+    const line = document.createElement("div");
+    line.textContent = event.data;
+    chat.appendChild(line);
+    chat.scrollTop = chat.scrollHeight;
+  };
+
+  socket.onclose = () => {
+    console.log("[frontend] Disconnected");
+    status.textContent = "disconnected";
+  };
+
+  function send() {
+    const input = document.getElementById("msg");
+    const value = input.value;
+    if (!value) return;
+
+    socket.send(JSON.stringify({ type: "message", value }));
+    input.value = "";
+  }
+</script>
+
+</body>
+</html>

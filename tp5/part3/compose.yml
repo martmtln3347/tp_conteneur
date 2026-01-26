@@ -1,0 +1,36 @@
+services:
+  redis:
+    image: redis:7
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - PORT=8080
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - ${BACKEND_PORT:-8084}:8080
+    depends_on:
+      - redis
+    command: sh -c "npm install && npm run dev"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - BACKEND_PUBLIC_URL=${BACKEND_PUBLIC_URL:-http://localhost:8084}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - ${FRONTEND_PORT:-8085}:8081
+    depends_on:
+      - backend
+    command: sh -c "printf 'window.APP_CONFIG={BACKEND_URL:\"%s\"};\n' \"$BACKEND_PUBLIC_URL\" > public/config.js && npm install && npm run dev"

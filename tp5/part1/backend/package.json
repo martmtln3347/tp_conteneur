@@ -1,0 +1,17 @@
+{
+  "name": "tp5-part1-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon --watch src --ext js --signal SIGTERM src/server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

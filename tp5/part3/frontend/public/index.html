@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Socket.IO Chat + Redis</title>
+    <style>
+      body { font-family: sans-serif; max-width: 560px; margin: 20px auto; }
+      #chat { border: 1px solid #ccc; height: 250px; overflow-y: auto; padding: 5px; }
+      input, button { width: 100%; margin-top: 5px; }
+      #meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #555; }
+      #rooms { display: flex; gap: 8px; margin: 10px 0; }
+      #rooms button { width: auto; padding: 6px 10px; cursor: pointer; }
+      #currentRoom { font-weight: bold; }
+    </style>
+  </head>
+
+  <body>
+    <h3>🐈🐈🐈 Soupa chat 🐈🐈🐈 (Redis pub/sub)</h3>
+
+    <div id="meta">
+      <div>Users connected: <strong id="userCount">0</strong></div>
+      <div>Status: <span id="status">disconnected</span></div>
+    </div>
+
+    <div>Current room: <span id="currentRoom">(none)</span></div>
+
+    <div id="rooms">
+      <button data-room="cats">cats</button>
+      <button data-room="dogs">dogs</button>
+      <button data-room="foxes">foxes</button>
+    </div>
+
+    <div id="chat"></div>
+    <input id="msg" placeholder="Type a message..." />
+    <button onclick="send()">Send</button>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <!-- Config (générée depuis .env via docker compose) -->
+    <script src="config.js"></script>
+    <script src="client.js"></script>
+  </body>
+
+</html>
